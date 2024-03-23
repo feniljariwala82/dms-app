@@ -9,8 +9,8 @@ const AuthService = require("../services/AuthService");
 /* POST user login listing. */
 router.post("/login", loginValidator, async (req, res, next) => {
   try {
-    await AuthService.authenticate(req.body);
-    return res.status(200).json("Logged in");
+    const token = await AuthService.login(req.body);
+    return res.status(200).json(token);
   } catch (error) {
     return res.status(400).json(logError(error, "An error occurred in login"));
   }

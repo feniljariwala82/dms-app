@@ -1,7 +1,7 @@
 /**
  * @description generates error with custom code
  * @param {string} errorMessage
- * @param {'USER_ERROR'} code
+ * @param {'USER_ERROR'|'INVALID_INPUT'} code
  * @returns
  */
 const UserException = (errorMessage, code = "USER_ERROR") => {

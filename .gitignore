@@ -1,6 +1,7 @@
 # backend
 node_modules
 .env
+uploads
 
 # client
 client/node_modules

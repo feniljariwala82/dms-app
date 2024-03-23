@@ -8,6 +8,9 @@ var app = require("../app");
 var debug = require("debug")("dms-app:server");
 var http = require("http");
 const { connectDB } = require("../config/database");
+const path = require("path");
+const fs = require("fs");
+const { mkdir } = require("fs/promises");
 
 /**
  * Get port from environment and store in Express.
@@ -88,4 +91,10 @@ async function onListening() {
 
   // on server started connecting to the database
   await connectDB();
+
+  // create uploads directory if it does not exists
+  const uploadsPath = path.join(__dirname, "..", "uploads");
+  if (!fs.existsSync(uploadsPath)) {
+    await mkdir(uploadsPath, { recursive: true });
+  }
 }
