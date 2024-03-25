@@ -1,29 +1,33 @@
 require("dotenv").config();
-var express = require("express");
-var path = require("path");
-var cookieParser = require("cookie-parser");
-var logger = require("morgan");
-var cors = require("cors");
+const express = require("express");
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const logger = require("morgan");
+const cors = require("cors");
 
-var indexRouter = require("./routes/indexRouter");
-var usersRouter = require("./routes/usersRouter");
-var documentsRouter = require("./routes/documentsRouter");
+const usersRouter = require("./routes/usersRouter");
+const documentsRouter = require("./routes/documentsRouter");
 const authMiddleware = require("./middlewares/auth/authenticated");
+const guestMiddleware = require("./middlewares/auth/guest");
 
-var app = express();
+const app = express();
 
 app.use(cors());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
+
+// if only in production then an only hosting react client app
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "client", "dist")));
+}
 
 // serve uploaded files statically
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.use("/", indexRouter);
-app.use("/api/users", usersRouter);
+// API routes
+app.use("/api/users", guestMiddleware, usersRouter);
 app.use("/api/documents", authMiddleware, documentsRouter);
 
 // error handling middleware

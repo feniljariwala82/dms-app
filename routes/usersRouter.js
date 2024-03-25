@@ -1,5 +1,5 @@
-var express = require("express");
-var router = express.Router();
+const express = require("express");
+const router = express.Router();
 const signupValidator = require("../middlewares/validators/auth/signupValidator");
 const loginValidator = require("../middlewares/validators/auth/loginValidator");
 const UserModel = require("../models/UserModel");
