@@ -2,6 +2,7 @@
   "name": "dms-app",
   "version": "0.0.0",
   "private": true,
+  "main": "./bin/www",
   "scripts": {
     "start:client": "cd client && yarn dev",
     "start:server": "nodemon ./bin/www",
