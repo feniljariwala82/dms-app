@@ -1,9 +1,5 @@
-const PDFViewer = ({ pdfUrl }: { pdfUrl: string }) => {
-  return (
-    <div style={{ width: "100%", height: "100%" }}>
-      <embed src={pdfUrl} type="application/pdf" width="100%" height="100%" />
-    </div>
-  );
+const PDFViewer = () => {
+  return <div style={{ width: "100%", height: "100%" }}>PDF Document</div>;
 };
 
 export default PDFViewer;

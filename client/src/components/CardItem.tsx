@@ -88,7 +88,7 @@ const CardItem = ({ item, onShowDocumentHandler }: Props) => {
 
       <IconButton
         color="success"
-        onClick={onDocumentDownloadHandler.bind(this, item._id)}
+        onClick={() => onDocumentDownloadHandler(item._id)}
       >
         <DownloadIcon />
       </IconButton>
@@ -109,7 +109,7 @@ const CardItem = ({ item, onShowDocumentHandler }: Props) => {
         >
           <Card sx={{ minWidth: 275 }}>
             <CardContent>
-              <PDFViewer pdfUrl={item.storagePath} />
+              <PDFViewer />
             </CardContent>
 
             <CardActions disableSpacing>{cardActions(item)}</CardActions>

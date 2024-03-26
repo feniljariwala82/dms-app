@@ -71,6 +71,7 @@ class ContentManagementService {
           ACL: "private",
           Bucket: process.env.AWS_BUCKET_NAME,
           Key: key,
+          ResponseContentDisposition: "inline",
         });
 
         // generating signed url for 1 minute expiry time
