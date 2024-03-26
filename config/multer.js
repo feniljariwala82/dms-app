@@ -28,7 +28,18 @@ const storage = multer.diskStorage({
 
 // file size limit and allowed MIME types
 const fileSizeLimit = 100 * 1024 * 1024; // 100MB file size limit
-const allowedMimeTypes = ["image/jpeg", "image/png", "application/pdf"]; // allowed MIME types
+const allowedMimeTypes = [
+  "image/jpeg", // jpeg
+  "image/png", // pngs
+  "application/pdf", // pdf
+  "text/plain", // text files
+  "application/vnd.ms-excel", // excel 97-2003
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // excel 2007+
+  "application/vnd.ms-powerpoint", // powerPoint 97-2003
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation", // powerPoint 2007+
+  "application/msword", // word 97-2003
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // word 2007+
+]; // allowed MIME types
 
 // custom file filter function for allowed MIME types
 const fileFilter = (req, file, cb) => {

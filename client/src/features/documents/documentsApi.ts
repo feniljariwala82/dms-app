@@ -19,7 +19,7 @@ const authApi = api.injectEndpoints({
       }),
       invalidatesTags: (_result, _error, id) => [
         { type: "Document", id },
-        { type: "Document", id: "LIST" }, // Invalidate the documents list
+        { type: "Document", id: "LIST" }, // invalidate the documents list
       ],
     }),
 
@@ -28,10 +28,10 @@ const authApi = api.injectEndpoints({
       query: (ids: string[]) => ({
         url: `/documents/destroy/bulk/`,
         method: "DELETE",
-        body: ids,
+        body: { ids },
       }),
       invalidatesTags: () => [
-        { type: "Document", id: "LIST" }, // Invalidate the documents list
+        { type: "Document", id: "LIST" }, // invalidate the documents list
       ],
     }),
   }),

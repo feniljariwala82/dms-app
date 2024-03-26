@@ -34,7 +34,20 @@ interface Props {
 const StyledDropzone = ({ children, onFileDrop }: Props) => {
   const { getRootProps, getInputProps, isFocused, isDragAccept, isDragReject } =
     useDropzone({
-      accept: { "image/*": [".png", ".jpeg"], "application/pdf": [".pdf"] },
+      accept: {
+        "image/jpeg": [".jpg", ".jpeg"],
+        "image/png": [".png"],
+        "application/pdf": [".pdf"],
+        "text/plain": [".txt"],
+        "application/vnd.ms-excel": [".xls", ".xlsx"],
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
+          ".xlsx",
+        ],
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+          [".docx"],
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+          [".pptx"],
+      },
       onDropAccepted: (files) => onFileDrop(files),
     });
 

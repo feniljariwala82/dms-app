@@ -1,15 +1,29 @@
-import { Grid, LinearProgress, Stack, Typography } from "@mui/material";
+import CancelIcon from "@mui/icons-material/Cancel";
+import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
+import {
+  Grid,
+  IconButton,
+  LinearProgress,
+  Stack,
+  Typography,
+} from "@mui/material";
+import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Modal from "@mui/material/Modal";
 import { useEffect, useState } from "react";
+import { Document, Page } from "react-pdf";
 import { toast } from "react-toastify";
 import { v4 as uuid } from "uuid";
 import { useAppDispatch } from "../app/hooks";
 import CardItem from "../components/CardItem";
 import StyledDropzone from "../components/StyledDropzone";
 import APIInstance from "../config/APIInstance";
-import { useDocumentsQuery } from "../features/documents/documentsApi";
+import { showToast } from "../config/Toast";
+import {
+  useDestroyBulkMutation,
+  useDocumentsQuery,
+} from "../features/documents/documentsApi";
 import { setDocuments } from "../features/documents/documentsSlice";
 
 const style = {
@@ -31,9 +45,11 @@ const Welcome = () => {
     isLoading,
     refetch: refetchDocuments,
   } = useDocumentsQuery("Documents");
+  const [destroy] = useDestroyBulkMutation();
   const dispatch = useAppDispatch();
   const [open, setOpen] = useState(false);
   const [selectedUrl, setSelectedUrl] = useState<string | undefined>();
+  const [selectedDocumentIds, setSelectedDocumentIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (!isLoading && data) {
@@ -116,26 +132,99 @@ const Welcome = () => {
   return (
     <StyledDropzone onFileDrop={onFileDropHandler}>
       <Container maxWidth="lg">
-        <Typography variant="h4" gutterBottom>
-          Home
-        </Typography>
+        <Stack
+          spacing={2}
+          direction={"row"}
+          justifyContent={"space-between"}
+          alignItems={"center"}
+        >
+          <Typography variant="h4" gutterBottom>
+            Home
+          </Typography>
 
+          {selectedDocumentIds.length ? (
+            <Stack
+              direction={"row"}
+              justifyContent={"space-between"}
+              alignItems={"center"}
+            >
+              <Typography variant="body1" gutterBottom color={"primary"} mr={2}>
+                Selected documents {selectedDocumentIds.length}
+              </Typography>
+              <IconButton
+                color="error"
+                onClick={async (event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  try {
+                    await destroy(selectedDocumentIds).unwrap();
+                    setSelectedDocumentIds([]);
+                    showToast("Documents successfully deleted", "success");
+                  } catch (error) {
+                    showToast(
+                      "An error occurred when trying to delete documents",
+                      "error"
+                    );
+                  }
+                }}
+              >
+                <DeleteSweepIcon />
+              </IconButton>
+              <IconButton
+                color="info"
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  setSelectedDocumentIds([]);
+                }}
+              >
+                <CancelIcon />
+              </IconButton>
+            </Stack>
+          ) : (
+            <></>
+          )}
+        </Stack>
+
+        {/* view modal starts */}
         <Modal
           open={open}
           onClose={handleClose}
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
           onClick={handleClose}
+          closeAfterTransition
+          slots={{ backdrop: Backdrop }}
+          slotProps={{
+            backdrop: {
+              timeout: 500,
+            },
+          }}
         >
           <Box sx={style}>
-            <img
-              src={selectedUrl}
-              height={"100%"}
-              width={600}
-              style={{ objectFit: "contain" }}
-            />
+            {selectedUrl?.includes(".pdf") ? (
+              <Document file={selectedUrl} renderMode="canvas">
+                <Page
+                  pageIndex={0}
+                  pageNumber={1}
+                  height={600}
+                  renderAnnotationLayer={false}
+                  renderTextLayer={false}
+                  className={"modal-width"}
+                />
+              </Document>
+            ) : (
+              <img
+                src={selectedUrl}
+                height={"100%"}
+                width={600}
+                style={{ objectFit: "contain" }}
+                className={"modal-width"}
+              />
+            )}
           </Box>
         </Modal>
+        {/* view modal ends */}
 
         {data.length ? (
           <Grid container spacing={2}>
@@ -143,11 +232,23 @@ const Welcome = () => {
               <CardItem
                 key={item._id}
                 item={item}
-                onShowDocumentHandler={(url) => {
-                  if (url.includes(".pdf")) {
-                    return window.open(url, "_blank");
+                selected={selectedDocumentIds.some((id) => id === item._id)}
+                onClickDocumentHandler={(id) => {
+                  const exists = selectedDocumentIds.find(
+                    (docId) => docId === id
+                  );
+                  if (exists) {
+                    setSelectedDocumentIds((selectedIds) =>
+                      selectedIds.filter((selectedId) => selectedId !== id)
+                    );
+                  } else {
+                    setSelectedDocumentIds((selectedIds) => [
+                      ...selectedIds,
+                      id,
+                    ]);
                   }
-
+                }}
+                onShowDocumentHandler={(url) => {
                   setSelectedUrl(url);
                   handleOpen();
                 }}

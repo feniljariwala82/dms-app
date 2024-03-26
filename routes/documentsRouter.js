@@ -153,6 +153,8 @@ router.delete("/destroy/bulk", documentIdsValidator, async (req, res, next) => {
 
     // deletes data
     await DocumentModel.destroyMany(ids);
+
+    return res.status(200).json("Documents successfully deleted");
   } catch (error) {
     return res
       .status(400)

@@ -8,17 +8,25 @@ import {
   Grid,
   IconButton,
 } from "@mui/material";
+import { blue } from "@mui/material/colors";
+import { Document, Page } from "react-pdf";
 import APIInstance from "../config/APIInstance";
 import { showToast } from "../config/Toast";
 import { useDestroyMutation } from "../features/documents/documentsApi";
-import PDFViewer from "./PDFViewer";
 
 interface Props {
   item: any;
+  selected: boolean;
+  onClickDocumentHandler: (id: string) => void;
   onShowDocumentHandler: (url: string) => void;
 }
 
-const CardItem = ({ item, onShowDocumentHandler }: Props) => {
+const CardItem = ({
+  item,
+  selected,
+  onClickDocumentHandler,
+  onShowDocumentHandler,
+}: Props) => {
   const [destroy] = useDestroyMutation();
 
   // function to prevent the default behavior and stop event propagation
@@ -26,6 +34,7 @@ const CardItem = ({ item, onShowDocumentHandler }: Props) => {
     event.preventDefault();
     event.stopPropagation();
     // additional code to show the image in modal can be added here
+    onClickDocumentHandler(item._id);
   };
 
   // function to prevent the default behavior and stop event propagation
@@ -70,7 +79,7 @@ const CardItem = ({ item, onShowDocumentHandler }: Props) => {
     document.body.removeChild(link);
   };
 
-  const cardActions = (item: any) => (
+  const cardActions = () => (
     <>
       <IconButton
         color="error"
@@ -82,6 +91,12 @@ const CardItem = ({ item, onShowDocumentHandler }: Props) => {
       <IconButton
         color="info"
         onClick={() => onShowDocumentHandler(item.storagePath)}
+        disabled={
+          !item.mimeType.includes("jpg") &&
+          !item.mimeType.includes("jpeg") &&
+          !item.mimeType.includes("png") &&
+          !item.mimeType.includes("pdf")
+        }
       >
         <RemoveRedEyeIcon />
       </IconButton>
@@ -95,51 +110,134 @@ const CardItem = ({ item, onShowDocumentHandler }: Props) => {
     </>
   );
 
+  const renderCardContent = () => {
+    switch (item.mimeType) {
+      case "image/jpeg": {
+        return (
+          <img
+            srcSet={`${item.storagePath}`}
+            src={`${item.storagePath}`}
+            loading="lazy"
+            style={{ objectFit: "contain", width: "100%", maxHeight: 200 }}
+          />
+        );
+      }
+
+      case "image/png": {
+        return (
+          <img
+            srcSet={`${item.storagePath}`}
+            src={`${item.storagePath}`}
+            loading="lazy"
+            style={{ objectFit: "contain", width: "100%", maxHeight: 200 }}
+          />
+        );
+      }
+
+      case "application/pdf": {
+        return (
+          <Document file={item.storagePath} renderMode="canvas">
+            <Page
+              pageIndex={0}
+              pageNumber={1}
+              height={200}
+              renderAnnotationLayer={false}
+              renderTextLayer={false}
+            />
+          </Document>
+        );
+      }
+
+      case "text/plain": {
+        return (
+          <img
+            src={"/images/txt-file.png"}
+            loading="lazy"
+            style={{ objectFit: "contain", width: "100%", maxHeight: 200 }}
+          />
+        );
+      }
+
+      case "application/vnd.ms-excel": {
+        return (
+          <img
+            src={"/images/excel.png"}
+            loading="lazy"
+            style={{ objectFit: "contain", width: "100%", maxHeight: 200 }}
+          />
+        );
+      }
+
+      case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+        return (
+          <img
+            src={"/images/excel.png"}
+            loading="lazy"
+            style={{ objectFit: "contain", width: "100%", maxHeight: 200 }}
+          />
+        );
+      }
+
+      case "application/vnd.ms-powerpoint": {
+        return (
+          <img
+            src={"/images/powerpoint.png"}
+            loading="lazy"
+            style={{ objectFit: "contain", width: "100%", maxHeight: 200 }}
+          />
+        );
+      }
+
+      case "application/vnd.openxmlformats-officedocument.presentationml.presentation": {
+        return (
+          <img
+            src={"/images/powerpoint.png"}
+            loading="lazy"
+            style={{ objectFit: "contain", width: "100%", maxHeight: 200 }}
+          />
+        );
+      }
+
+      case "application/msword": {
+        return (
+          <img
+            src={"/images/docx.png"}
+            loading="lazy"
+            style={{ objectFit: "contain", width: "100%", maxHeight: 200 }}
+          />
+        );
+      }
+
+      case "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
+        return (
+          <img
+            src={"/images/docx.png"}
+            loading="lazy"
+            style={{ objectFit: "contain", width: "100%", maxHeight: 200 }}
+          />
+        );
+      }
+
+      default:
+        break;
+    }
+  };
+
   return (
-    <>
-      {item.mimeType === "application/pdf" ? (
-        <Grid
-          item
-          xs={12}
-          sm={6}
-          md={4}
-          lg={3}
-          key={item.storagePath}
-          onClick={handleClick}
-        >
-          <Card sx={{ minWidth: 275 }}>
-            <CardContent>
-              <PDFViewer />
-            </CardContent>
-
-            <CardActions disableSpacing>{cardActions(item)}</CardActions>
-          </Card>
-        </Grid>
-      ) : (
-        <Grid
-          item
-          xs={12}
-          sm={6}
-          md={4}
-          lg={3}
-          key={item.storagePath}
-          onClick={handleClick}
-        >
-          <Card sx={{ minWidth: "fit-content" }}>
-            <CardContent>
-              <img
-                srcSet={`${item.storagePath}`}
-                src={`${item.storagePath}`}
-                loading="lazy"
-                style={{ objectFit: "contain", width: "100%", maxHeight: 200 }}
-              />
-            </CardContent>
-
-            <CardActions disableSpacing>{cardActions(item)}</CardActions>
-          </Card>
-        </Grid>
-      )}
-    </>
+    <Grid
+      item
+      xs={12}
+      sm={6}
+      md={4}
+      lg={3}
+      key={item.storagePath}
+      onClick={handleClick}
+    >
+      <Card sx={{ background: selected ? blue[50] : undefined }}>
+        <CardContent>{renderCardContent()}</CardContent>
+        <CardActions disableSpacing>{cardActions()}</CardActions>
+      </Card>
+    </Grid>
   );
 };
 
