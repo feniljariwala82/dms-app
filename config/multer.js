@@ -19,6 +19,7 @@ const storage = multer.diskStorage({
     // saving uploaded file's name
     req.uploadedFileName = newFileName;
     req.uploadedFilePath = path.join(localStoragePath, newFileName);
+    req.uploadedFileMimeType = file.mimetype;
 
     // renaming the file
     cb(null, newFileName);
@@ -26,7 +27,7 @@ const storage = multer.diskStorage({
 });
 
 // file size limit and allowed MIME types
-const fileSizeLimit = 5 * 1024 * 1024; // 5MB file size limit
+const fileSizeLimit = 100 * 1024 * 1024; // 100MB file size limit
 const allowedMimeTypes = ["image/jpeg", "image/png", "application/pdf"]; // allowed MIME types
 
 // custom file filter function for allowed MIME types

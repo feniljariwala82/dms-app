@@ -15,7 +15,7 @@ const publicKey = fs.readFileSync(
 class AuthService {
   /**
    * @description generates JWT token
-   * @param {{_id:any, email:string}} payload
+   * @param {{_id:any, email:string, firstName:string, lastName:string, createdAt:any}} payload
    * @returns
    */
   static generateJWT = async (payload) => {
@@ -49,7 +49,6 @@ class AuthService {
           if (error) {
             return reject(new Error(error.message));
           }
-
           return resolve(decoded);
         }
       );
@@ -89,6 +88,9 @@ class AuthService {
     const token = await this.generateJWT({
       _id: user._id,
       email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      createdAt: user.createdAt,
     });
 
     return token;

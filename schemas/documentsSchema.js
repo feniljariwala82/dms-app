@@ -11,6 +11,10 @@ const documentsSchema = new Schema({
     required: true,
     ref: "users", // Reference to the users collection
   },
+  mimeType: {
+    type: String,
+    required: true,
+  },
   categories: [{ type: String }], // Array of category strings
   createdAt: { type: Date, default: Date.now },
 });

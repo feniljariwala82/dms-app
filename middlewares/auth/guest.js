@@ -10,7 +10,7 @@ const guest = async (req, res, next) => {
   // if token not found
   if (!bearerToken) {
     // then allowing the request
-    next();
+    return next();
   }
 
   // fetching token from the bearer token

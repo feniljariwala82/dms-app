@@ -38,7 +38,7 @@ const signupValidator = async (req, res, next) => {
     next();
   } catch (error) {
     console.error(error);
-    return res.status(422).json(parseValidationErrors(error));
+    return res.status(422).json({ errors: parseValidationErrors(error) });
   }
 };
 

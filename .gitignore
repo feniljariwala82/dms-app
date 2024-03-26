@@ -2,6 +2,7 @@
 node_modules
 .env
 uploads
+DMS_app_connection_key.pem
 
 # client
 client/node_modules

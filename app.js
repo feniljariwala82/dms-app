@@ -8,27 +8,37 @@ const cors = require("cors");
 const usersRouter = require("./routes/usersRouter");
 const documentsRouter = require("./routes/documentsRouter");
 const authMiddleware = require("./middlewares/auth/authenticated");
-const guestMiddleware = require("./middlewares/auth/guest");
 
 const app = express();
 
-app.use(cors());
+// Set up CORS middleware
+const corsOptions = {
+  origin: "http://localhost:5173", // Replace with your frontend's origin
+  credentials: true, // Enable credentials
+};
+app.use(cors(corsOptions)); // using CORS middleware to allow all requests
+
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// if only in production then an only hosting react client app
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "client", "dist")));
-}
-
 // serve uploaded files statically
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // API routes
-app.use("/api/users", guestMiddleware, usersRouter);
+app.use("/api/users", usersRouter);
 app.use("/api/documents", authMiddleware, documentsRouter);
+
+// if only in production then an only hosting react client app
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "client", "dist")));
+
+  // Handle other routes by serving the index.html file
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+  });
+}
 
 // error handling middleware
 app.use((err, req, res, next) => {

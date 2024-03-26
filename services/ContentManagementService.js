@@ -4,6 +4,7 @@ const {
   GetObjectCommand,
   DeleteObjectCommand,
   HeadObjectCommand,
+  DeleteObjectsCommand,
 } = require("@aws-sdk/client-s3");
 const path = require("path");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
@@ -82,7 +83,7 @@ class ContentManagementService {
 
       default: {
         // local
-        return `/uploads/${key}`;
+        return `http://localhost:3000/uploads/${key}`;
       }
     }
   };
@@ -115,6 +116,48 @@ class ContentManagementService {
 
         // removing the file
         await rm(filePath);
+
+        break;
+      }
+    }
+  };
+
+  /**
+   * @description deletes a content
+   * @param {string[]} keys
+   */
+  deleteMany = async (keys) => {
+    switch (this.drive) {
+      case "s3": {
+        // s3
+
+        // generating delete object command
+        const command = new DeleteObjectsCommand({
+          ACL: "private",
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Delete: {
+            Objects: keys.map((key) => {
+              return {
+                Key: key,
+              };
+            }),
+          },
+        });
+
+        // sending command
+        await S3_CLIENT.send(command);
+
+        break;
+      }
+
+      default: {
+        // local
+        for (const key of keys) {
+          const filePath = path.join(__dirname, "..", "uploads", keys);
+
+          // removing the file
+          await rm(filePath);
+        }
 
         break;
       }
@@ -188,7 +231,7 @@ class ContentManagementService {
         const { Body } = await S3_CLIENT.send(command);
 
         // setting headers to indicate file download
-        res.setHeader("Content-disposition", "attachment; filename=" + key);
+        res.setHeader("Content-disposition", `attachment; filename="${key}"`);
         // setting stream content type
         res.setHeader("Content-type", "application/octet-stream");
 
@@ -210,18 +253,19 @@ class ContentManagementService {
         // checking file stats
         const fileStat = await stat(storagePath);
 
-        // setting headers to indicate file download
-        res.setHeader("Content-disposition", "attachment; filename=" + key);
         // setting stream content type
         res.setHeader("Content-type", "application/octet-stream");
         // setting content size
         res.setHeader("Content-Length", fileStat.size);
+        // setting headers to indicate file download
+        res.setHeader("Content-disposition", `attachment; filename="${key}"`);
 
         // create a read stream to read the file
         const fileStream = fs.createReadStream(storagePath);
 
         // pipe the file stream to the response
         fileStream.pipe(res);
+
         break;
       }
     }
