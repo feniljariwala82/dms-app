@@ -32,10 +32,10 @@ interface Props {
 }
 
 const drawerWidth = 240;
-const navItems: { label: string; isGuest: boolean }[] = [
-  { label: "Home", isGuest: false },
-  { label: "Login", isGuest: true },
-  { label: "Signup", isGuest: true },
+const navItems: { label: string; isGuest: boolean; redirect?: string }[] = [
+  { label: "Home", isGuest: false, redirect: "/" },
+  { label: "Login", isGuest: true, redirect: "/login" },
+  { label: "Signup", isGuest: true, redirect: "/signup" },
   { label: "Logout", isGuest: false },
 ];
 
@@ -69,7 +69,7 @@ const MainLayout = (props: Props) => {
       dispatch(logoutAction());
       navigate("/login");
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, isError, dispatch]);
 
   const handleDrawerToggle = () => {
@@ -89,7 +89,7 @@ const MainLayout = (props: Props) => {
       </Typography>
       <Divider />
       <List>
-        {navItems.map(({ label, isGuest }) => {
+        {navItems.map(({ label, isGuest, redirect }) => {
           if (isLoggedIn && !isGuest) {
             return (
               <ListItem
@@ -97,7 +97,14 @@ const MainLayout = (props: Props) => {
                 disablePadding
                 onClick={label === "Logout" ? logoutHandler : undefined}
               >
-                <ListItemButton sx={{ textAlign: "center" }}>
+                <ListItemButton
+                  sx={{ textAlign: "center" }}
+                  onClick={() => {
+                    if (redirect) {
+                      navigate(redirect);
+                    }
+                  }}
+                >
                   <ListItemText primary={label} />
                 </ListItemButton>
               </ListItem>
@@ -105,7 +112,14 @@ const MainLayout = (props: Props) => {
           } else if (!isLoggedIn && isGuest) {
             return (
               <ListItem key={label} disablePadding>
-                <ListItemButton sx={{ textAlign: "center" }}>
+                <ListItemButton
+                  sx={{ textAlign: "center" }}
+                  onClick={() => {
+                    if (redirect) {
+                      navigate(redirect);
+                    }
+                  }}
+                >
                   <ListItemText primary={label} />
                 </ListItemButton>
               </ListItem>
@@ -142,7 +156,7 @@ const MainLayout = (props: Props) => {
               DMS
             </Typography>
             <Box sx={{ display: { xs: "none", sm: "block" } }}>
-              {navItems.map(({ label, isGuest }) => {
+              {navItems.map(({ label, isGuest, redirect }) => {
                 if (isLoggedIn && !isGuest) {
                   return (
                     <Button
@@ -155,7 +169,15 @@ const MainLayout = (props: Props) => {
                   );
                 } else if (!isLoggedIn && isGuest) {
                   return (
-                    <Button key={label} sx={{ color: "#fff" }}>
+                    <Button
+                      key={label}
+                      sx={{ color: "#fff" }}
+                      onClick={() => {
+                        if (redirect) {
+                          navigate(redirect);
+                        }
+                      }}
+                    >
                       {label}
                     </Button>
                   );
