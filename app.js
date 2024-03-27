@@ -13,7 +13,7 @@ const app = express();
 
 // Set up CORS middleware
 const corsOptions = {
-  origin: "http://localhost:5173", // Replace with your frontend's origin
+  origin: ["http://localhost:5173", "https://dms.origiins.co"], // Replace with your frontend's origin
   credentials: true, // Enable credentials
 };
 app.use(cors(corsOptions)); // using CORS middleware to allow all requests
